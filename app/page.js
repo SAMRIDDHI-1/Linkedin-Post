@@ -216,7 +216,7 @@ export default function Home() {
                     gap: '10px'
                   }}>
                     <span style={{ color: '#0a66c2', fontSize: '24px' }}>📝</span>
-                    What's your expertise?
+                    What&apos;s your expertise?
                   </label>
                   <textarea
                     value={topic}
