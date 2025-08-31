@@ -65,10 +65,24 @@ export default function Home() {
       });
 
       const data = await response.json();
-      setResults(data.posts || []);
+      console.log("API response:", data);
+      
+      // Process the response to extract the posts
+      if (data.post1) {
+        // If the response contains post1, post2, etc. properties
+        const posts = [];
+        let i = 1;
+        while (data[`post${i}`]) {
+          posts.push({ content: data[`post${i}`] });
+          i++;
+        }
+        setResults(posts);
+      } else {
+        setResults(data.posts || []);
+      }
     } catch (error) {
       console.error('Error:', error);
-      setResults(['Sorry, there was an error generating posts. Please try again.']);
+      setResults([{content: 'Sorry, there was an error generating posts. Please try again.'}]);
     }
     setIsLoading(false);
   }
@@ -168,7 +182,7 @@ export default function Home() {
         }}>
           
           {/* Header Section */}
-          <div style={{ textAlign: 'center', marginBottom: '50px' }}>
+          <div style={{ textAlign: 'center',marginBottom: '50px' }}>
             <h2 style={{ 
               fontSize: '36px', 
               fontWeight: '600', 
@@ -410,105 +424,111 @@ export default function Home() {
                 </div>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-                  {results.map((post, index) => (
-                    <div key={index} style={{
-                      background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-                      borderRadius: '16px',
-                      padding: '32px',
-                      border: '1px solid #e0e0e0',
-                      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
-                      position: 'relative',
-                      overflow: 'hidden'
-                    }}>
-                      <div style={{ 
-                        position: 'absolute',
-                        top: '0',
-                        left: '0',
-                        height: '4px',
-                        width: '100%',
-                        background: 'linear-gradient(90deg, #0a66c2 0%, #004182 100%)'
-                      }} />
-                      
-                      <div style={{ 
-                        position: 'absolute',
-                        top: '20px',
-                        right: '20px',
-                        background: 'linear-gradient(135deg, #0a66c2 0%, #004182 100%)',
-                        color: 'white',
-                        width: '36px',
-                        height: '36px',
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '14px',
-                        fontWeight: '700',
-                        boxShadow: '0 2px 10px rgba(10, 102, 194, 0.3)'
+                  {results.map((post, index) => {
+                    // Get the post content regardless of property name
+                    const postContent = post.content || post.title || post.text || 
+                                      (typeof post === 'string' ? post : JSON.stringify(post));
+                    
+                    return (
+                      <div key={index} style={{
+                        background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+                        borderRadius: '16px',
+                        padding: '32px',
+                        border: '1px solid #e0e0e0',
+                        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
+                        position: 'relative',
+                        overflow: 'hidden'
                       }}>
-                        {index + 1}
-                      </div>
-                      
-                      <div style={{ 
-                        color: '#191919', 
-                        lineHeight: '1.7',
-                        marginBottom: '28px',
-                        whiteSpace: 'pre-wrap',
-                        fontSize: '16px',
-                        paddingRight: '40px'
-                      }}>
-                        {post}
-                      </div>
-                      
-                      <div style={{ 
-                        display: 'flex', 
-                        gap: '16px',
-                        flexWrap: 'wrap'
-                      }}>
-                        <button
-                          onClick={() => copyToClipboard(post, index)}
-                          style={{
-                            background: copiedIndex === index ? '#10b981' : 'transparent',
-                            color: copiedIndex === index ? 'white' : '#0a66c2',
-                            border: `2px solid ${copiedIndex === index ? '#10b981' : '#0a66c2'}`,
-                            padding: '12px 24px',
-                            borderRadius: '25px',
-                            cursor: 'pointer',
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            transition: 'all 0.2s ease',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                          }}
-                        >
-                          {copiedIndex === index ? '✅ Copied!' : '📋 Copy Text'}
-                        </button>
+                        <div style={{ 
+                          position: 'absolute',
+                          top: '0',
+                          left: '0',
+                          height: '4px',
+                          width: '100%',
+                          background: 'linear-gradient(90deg, #0a66c2 0%, #004182 100%)'
+                        }} />
                         
-                        <button
-                          onClick={() => {
-                            window.open(`https://www.linkedin.com/shareArticle?mini=true&text=${encodeURIComponent(post)}`, '_blank');
-                          }}
-                          style={{
-                            background: 'linear-gradient(135deg, #0a66c2 0%, #004182 100%)',
-                            color: 'white',
-                            border: 'none',
-                            padding: '12px 24px',
-                            borderRadius: '25px',
-                            cursor: 'pointer',
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            transition: 'all 0.2s ease',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            boxShadow: '0 2px 10px rgba(10, 102, 194, 0.3)'
-                          }}
-                        >
-                          🔗 Share on LinkedIn
-                        </button>
+                        <div style={{ 
+                          position: 'absolute',
+                          top: '20px',
+                          right: '20px',
+                          background: 'linear-gradient(135deg, #0a66c2 0%, #004182 100%)',
+                          color: 'white',
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '14px',
+                          fontWeight: '700',
+                          boxShadow: '0 2px 10px rgba(10, 102, 194, 0.3)'
+                        }}>
+                          {index + 1}
+                        </div>
+                        
+                        <div style={{ 
+                          color: '#191919', 
+                          lineHeight: '1.7',
+                          marginBottom: '28px',
+                          whiteSpace: 'pre-wrap',
+                          fontSize: '16px',
+                          paddingRight: '40px'
+                        }}>
+                          {postContent}
+                        </div>
+                        
+                        <div style={{ 
+                          display: 'flex', 
+                          gap: '16px',
+                          flexWrap: 'wrap'
+                        }}>
+                          <button
+                            onClick={() => copyToClipboard(postContent, index)}
+                            style={{
+                              background: copiedIndex === index ? '#10b981' : 'transparent',
+                              color: copiedIndex === index ? 'white' : '#0a66c2',
+                              border: `2px solid ${copiedIndex === index ? '#10b981' : '#0a66c2'}`,
+                              padding: '12px 24px',
+                              borderRadius: '25px',
+                              cursor: 'pointer',
+                              fontSize: '14px',
+                              fontWeight: '600',
+                              transition: 'all 0.2s ease',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px'
+                            }}
+                          >
+                            {copiedIndex === index ? '✅ Copied!' : '📋 Copy Text'}
+                          </button>
+                          
+                          <button
+                            onClick={() => {
+                              window.open(`https://www.linkedin.com/shareArticle?mini=true&text=${encodeURIComponent(postContent)}`, '_blank');
+                            }}
+                            style={{
+                              background: 'linear-gradient(135deg, #0a66c2 0%, #004182 100%)',
+                              color: 'white',
+                              border: 'none',
+                              padding: '12px 24px',
+                              borderRadius: '25px',
+                              cursor: 'pointer',
+                              fontSize: '14px',
+                              fontWeight: '600',
+                              transition: 'all 0.2s ease',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              boxShadow: '0 2px 10px rgba(10, 102, 194, 0.3)'
+                            }}
+                          >
+                            🔗 Share on LinkedIn
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -563,7 +583,7 @@ export default function Home() {
             display: 'grid', 
             gridTemplateColumns: 'repeat(3, 1fr)', 
             gap: '40px',
-            maxWidth: '800px',
+           maxWidth: '800px',
             margin: '0 auto'
           }}>
             <div>
@@ -585,188 +605,187 @@ export default function Home() {
         </div>
       </div>
 
-
-{/* Professional Footer */}
-<div style={{ 
-  marginTop: '60px',
-  padding: '40px 0',
-  borderTop: '1px solid #e0e0e0'
-}}>
-  <div style={{ 
-    maxWidth: '1000px', 
-    margin: '0 auto',
-    padding: '0 20px'
-  }}>
-    {/* Main Footer Content */}
-    <div style={{ 
-      display: 'grid', 
-      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-      gap: '40px',
-      marginBottom: '30px'
-    }}>
-      {/* Product Info */}
-      <div>
-        <h4 style={{ 
-          fontSize: '18px', 
-          fontWeight: '600', 
-          color: '#191919',
-          marginBottom: '20px'
-        }}>
-          PostCraft Pro
-        </h4>
-        <p style={{ 
-          color: '#666666', 
-          lineHeight: '1.6',
-          marginBottom: '20px'
-        }}>
-          AI-powered LinkedIn content creation tool designed for professionals who want to stand out and drive engagement.
-        </p>
-        <div style={{ display: 'flex', gap: '15px' }}>
-          <span style={{ 
-            backgroundColor: '#0a66c2',
-            color: 'white',
-            padding: '6px 12px',
-            borderRadius: '15px',
-            fontSize: '12px',
-            fontWeight: '500'
-          }}>
-            AI Powered
-          </span>
-          <span style={{ 
-            backgroundColor: '#10b981',
-            color: 'white',
-            padding: '6px 12px',
-            borderRadius: '15px',
-            fontSize: '12px',
-            fontWeight: '500'
-          }}>
-            Free to Use
-          </span>
-        </div>
-      </div>
-
-      {/* Features */}
-      <div>
-        <h4 style={{ 
-          fontSize: '18px', 
-          fontWeight: '600', 
-          color: '#191919',
-          marginBottom: '20px'
-        }}>
-          Features
-        </h4>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ color: '#0a66c2' }}>✓</span>
-            <span style={{ color: '#666666' }}>Multiple Tone Options</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ color: '#0a66c2' }}>✓</span>
-            <span style={{ color: '#666666' }}>Professional Formatting</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ color: '#0a66c2' }}>✓</span>
-            <span style={{ color: '#666666' }}>One-Click Sharing</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ color: '#0a66c2' }}>✓</span>
-            <span style={{ color: '#666666' }}>Copy to Clipboard</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Support */}
-      <div>
-        <h4 style={{ 
-          fontSize: '18px', 
-          fontWeight: '600', 
-          color: '#191919',
-          marginBottom: '20px'
-        }}>
-          Support
-        </h4>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <a href="#" style={{ 
-            color: '#0a66c2', 
-            textDecoration: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px'
-          }}>
-            <span>📧</span>
-            Report an Issue
-          </a>
-          <a href="#" style={{ 
-            color: '#0a66c2', 
-            textDecoration: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px'
-          }}>
-            <span>💡</span>
-            Feature Request
-          </a>
-          <a href="#" style={{ 
-            color: '#0a66c2', 
-            textDecoration: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px'
-          }}>
-            <span>🔧</span>
-            API Documentation
-          </a>
-        </div>
-      </div>
-    </div>
-
-    {/* Copyright and Credits */}
-    <div style={{ 
-      borderTop: '1px solid #e0e0e0',
-      paddingTop: '30px',
-      textAlign: 'center'
-    }}>
+      {/* Professional Footer */}
       <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '20px'
+        marginTop: '60px',
+        padding: '40px 0',
+        borderTop: '1px solid #e0e0e0'
       }}>
-        <div style={{ color: '#666666' }}>
-          <p style={{ margin: '0 0 8px 0', fontSize: '14px' }}>
-            © 2024 PostCraft Pro. All rights reserved.
-          </p>
-          <p style={{ margin: '0', fontSize: '12px', color: '#999999' }}>
-            This tool is for professional use only. Generated content should be reviewed before posting.
-          </p>
-        </div>
-        
         <div style={{ 
-          background: 'linear-gradient(135deg, #0a66c2 0%, #004182 100%)',
-          padding: '12px 24px',
-          borderRadius: '25px',
-          color: 'white',
-          fontWeight: '600'
+          maxWidth: '1000px', 
+          margin: '0 auto',
+          padding: '0 20px'
         }}>
-          Made with ❤️ by Samriddhi Tripathi
-        </div>
+          {/* Main Footer Content */}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+            gap: '40px',
+            marginBottom: '30px'
+          }}>
+            {/* Product Info */}
+            <div>
+              <h4 style={{ 
+                fontSize: '18px', 
+                fontWeight: '600', 
+                color: '#191919',
+                marginBottom: '20px'
+              }}>
+                PostCraft Pro
+              </h4>
+              <p style={{ 
+                color: '#666666', 
+                lineHeight: '1.6',
+                marginBottom: '20px'
+              }}>
+                AI-powered LinkedIn content creation tool designed for professionals who want to stand out and drive engagement.
+              </p>
+              <div style={{ display: 'flex', gap: '15px' }}>
+                <span style={{ 
+                  backgroundColor: '#0a66c2',
+                  color: 'white',
+                  padding: '6px 12px',
+                  borderRadius: '15px',
+                  fontSize: '12px',
+                  fontWeight: '500'
+                }}>
+                  AI Powered
+                </span>
+                <span style={{ 
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  padding: '6px 12px',
+                  borderRadius: '15px',
+                  fontSize: '12px',
+                  fontWeight: '500'
+                }}>
+                  Free to Use
+                </span>
+              </div>
+            </div>
 
-        <div style={{ display: 'flex', gap: '20px' }}>
-          <a href="#" style={{ color: '#666666', textDecoration: 'none', fontSize: '14px' }}>
-            Privacy Policy
-          </a>
-          <a href="#" style={{ color: '#666666', textDecoration: 'none', fontSize: '14px' }}>
-            Terms of Service
-          </a>
-          <a href="#" style={{ color: '#666666', textDecoration: 'none', fontSize: '14px' }}>
-            Cookie Policy
-          </a>
+            {/* Features */}
+            <div>
+              <h4 style={{ 
+                fontSize: '18px', 
+                fontWeight: '600', 
+                color: '#191919',
+                marginBottom: '20px'
+              }}>
+                Features
+              </h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ color: '#0a66c2' }}>✓</span>
+                  <span style={{ color: '#666666' }}>Multiple Tone Options</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ color: '#0a66c2' }}>✓</span>
+                  <span style={{ color: '#666666' }}>Professional Formatting</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ color: '#0a66c2' }}>✓</span>
+                  <span style={{ color: '#666666' }}>One-Click Sharing</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ color: '#0a66c2' }}>✓</span>
+                  <span style={{ color: '#666666' }}>Copy to Clipboard</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Support */}
+            <div>
+              <h4 style={{ 
+                fontSize: '18px', 
+                fontWeight: '600', 
+                color: '#191919',
+                marginBottom: '20px'
+              }}>
+                Support
+              </h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <a href="#" style={{ 
+                  color: '#0a66c2', 
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px'
+                }}>
+                  <span>📧</span>
+                  Report an Issue
+                </a>
+                <a href="#" style={{ 
+                  color: '#0a66c2', 
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                 gap: '10px'
+                }}>
+                  <span>💡</span>
+                  Feature Request
+                </a>
+                <a href="#" style={{ 
+                  color: '#0a66c2', 
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px'
+                }}>
+                  <span>🔧</span>
+                  API Documentation
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Copyright and Credits */}
+          <div style={{ 
+            borderTop: '1px solid #e0e0e0',
+            paddingTop: '30px',
+            textAlign: 'center'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '20px'
+            }}>
+              <div style={{ color: '#666666' }}>
+                <p style={{ margin: '0 0 8px 0', fontSize: '14px' }}>
+                  © 2024 PostCraft Pro. All rights reserved.
+                </p>
+                <p style={{ margin: '0', fontSize: '12px', color: '#999999' }}>
+                  This tool is for professional use only. Generated content should be reviewed before posting.
+                </p>
+              </div>
+              
+              <div style={{ 
+                background: 'linear-gradient(135deg, #0a66c2 0%, #004182 100%)',
+                padding: '12px 24px',
+                borderRadius: '25px',
+                color: 'white',
+                fontWeight: '600'
+              }}>
+                Made with ❤️ by Samriddhi Tripathi
+              </div>
+
+              <div style={{ display: 'flex', gap: '20px' }}>
+                <a href="#" style={{ color: '#666666', textDecoration: 'none', fontSize: '14px' }}>
+                  Privacy Policy
+                </a>
+                <a href="#" style={{ color: '#666666', textDecoration: 'none', fontSize: '14px' }}>
+                  Terms of Service
+                </a>
+                <a href="#" style={{ color: '#666666', textDecoration: 'none', fontSize: '14px' }}>
+                  Cookie Policy
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-</div>
 
       {/* Animations */}
       <style jsx>{`
@@ -778,3 +797,5 @@ export default function Home() {
     </div>
   );
 }
+
+
