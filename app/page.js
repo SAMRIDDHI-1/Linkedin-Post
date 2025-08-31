@@ -584,7 +584,9 @@ export default function Home() {
           </div>
         </div>
       </div>
-      {/* Professional Footer */}
+
+
+{/* Professional Footer */}
 <div style={{ 
   marginTop: '60px',
   padding: '40px 0',
@@ -672,8 +674,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
-      
 
       {/* Support */}
       <div>
@@ -767,6 +767,7 @@ export default function Home() {
     </div>
   </div>
 </div>
+
       {/* Animations */}
       <style jsx>{`
         @keyframes pulse {
@@ -775,6 +776,5 @@ export default function Home() {
         }
       `}</style>
     </div>
-    
   );
 }
